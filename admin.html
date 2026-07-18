@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moderation — Hindy-eleven</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="glass-header">
+  <a class="wordmark" href="index.html">Hindy<span class="dash" aria-hidden="true"></span><em>eleven</em></a>
+  <nav aria-label="Main">
+    <a href="index.html#events">The Scene</a>
+    <a href="music.html">Sounds</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="places.html">Places</a>
+    <a href="index.html#join" class="btn-gold">Members</a>
+  </nav>
+</header>
+
+<main class="admin-wrap">
+
+  <section id="login-view">
+    <div class="form-head">
+      <span class="kicker">Editors only</span>
+      <h1>Moderation</h1>
+      <p>Sign in to review what the community has submitted.</p>
+    </div>
+    <form class="le-form" id="login-form" novalidate>
+      <div class="le-row">
+        <label class="le-field le-wide">
+          <span>Email</span>
+          <input name="email" type="email" autocomplete="username" required>
+        </label>
+      </div>
+      <div class="le-row">
+        <label class="le-field le-wide">
+          <span>Password</span>
+          <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+      </div>
+      <button class="le-btn" type="submit">Sign in</button>
+      <p class="le-msg" id="login-msg" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <section id="queue-view" hidden>
+    <div class="admin-bar">
+      <div>
+        <span class="kicker">Moderation</span>
+        <h1 id="admin-hello">Pending</h1>
+      </div>
+      <button class="chip" id="signout" type="button">Sign out</button>
+    </div>
+
+    <h2 class="admin-sec">Events <span class="admin-n" id="ev-n"></span></h2>
+    <div id="events-queue" class="admin-queue"><p class="admin-empty">Loading…</p></div>
+
+    <h2 class="admin-sec">Photos <span class="admin-n" id="ph-n"></span></h2>
+    <div id="photos-queue" class="admin-grid"><p class="admin-empty">Loading…</p></div>
+  </section>
+
+</main>
+
+<footer>
+  <span>© 2026 Hindy-eleven</span>
+  <span class="fm">Naija culture, Indiana address.</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  const URL_ = "https://iixdwdrraellcsnxnifb.supabase.co";
+  const KEY = "sb_publishable_6HzNYHjLE9zTguF-DCpHmg_2tcVBlYa";
+  const PENDING = "event-photos-pending";
+  const PUBLIC = "event-photos";
+
+  let token = null;
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
+      { "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]
+    ));
+  }
+
+  const authHeaders = () => ({
+    "apikey": KEY,
+    "Authorization": "Bearer " + (token || KEY),
+    "Content-Type": "application/json"
+  });
+
+  function rpc(fn, body){
+    return fetch(URL_ + "/rest/v1/rpc/" + fn, {
+      method: "POST", headers: authHeaders(), body: JSON.stringify(body || {})
+    }).then(async (res) => {
+      const data = await res.json().catch(() => null);
+      if(!res.ok) throw new Error((data && data.message) || "Request failed");
+      return data;
+    });
+  }
+
+  /* ---------- auth ---------- */
+  const loginView = document.getElementById("login-view");
+  const queueView = document.getElementById("queue-view");
+  const loginMsg = document.getElementById("login-msg");
+
+  function saveSession(t, email){
+    token = t;
+    try { sessionStorage.setItem("admin-token", t); sessionStorage.setItem("admin-email", email || ""); } catch(e){}
+  }
+  function clearSession(){
+    token = null;
+    try { sessionStorage.removeItem("admin-token"); sessionStorage.removeItem("admin-email"); } catch(e){}
+  }
+
+  document.getElementById("login-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    const f = e.target;
+    loginMsg.textContent = "Signing in…";
+
+    fetch(URL_ + "/auth/v1/token?grant_type=password", {
+      method: "POST",
+      headers: { "apikey": KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ email: f.email.value.trim(), password: f.password.value })
+    })
+    .then(async (res) => {
+      const data = await res.json().catch(() => null);
+      if(!res.ok) throw new Error((data && (data.error_description || data.msg || data.message)) || "Sign-in failed");
+      return data;
+    })
+    .then((data) => {
+      saveSession(data.access_token, (data.user && data.user.email) || "");
+      loginMsg.textContent = "";
+      showQueue();
+    })
+    .catch((err) => { loginMsg.textContent = err.message; });
+  });
+
+  document.getElementById("signout").addEventListener("click", function(){
+    clearSession();
+    queueView.hidden = true;
+    loginView.hidden = false;
+  });
+
+  function showQueue(){
+    loginView.hidden = true;
+    queueView.hidden = false;
+    let email = "";
+    try { email = sessionStorage.getItem("admin-email") || ""; } catch(e){}
+    document.getElementById("admin-hello").textContent = email ? ("Pending · " + email) : "Pending";
+    loadEvents();
+    loadPhotos();
+  }
+
+  /* ---------- events queue ---------- */
+  const evQueue = document.getElementById("events-queue");
+  const evN = document.getElementById("ev-n");
+
+  function loadEvents(){
+    rpc("admin_pending_events").then((rows) => {
+      const list = rows || [];
+      evN.textContent = list.length ? "(" + list.length + ")" : "";
+      if(!list.length){ evQueue.innerHTML = '<p class="admin-empty">Nothing waiting.</p>'; return; }
+      evQueue.innerHTML = "";
+      list.forEach((ev) => {
+        const d = new Date(ev.starts_at);
+        const card = document.createElement("article");
+        card.className = "admin-card";
+        card.innerHTML =
+          '<div class="admin-card-body">' +
+            '<h3>' + esc(ev.title) + '</h3>' +
+            '<p class="admin-when">' + esc(d.toLocaleString(undefined, {
+                weekday:"short", year:"numeric", month:"long", day:"numeric",
+                hour:"numeric", minute:"2-digit" })) + '</p>' +
+            (ev.blurb ? '<p>' + esc(ev.blurb) + '</p>' : '') +
+            '<dl class="admin-meta">' +
+              (ev.venue   ? '<dt>Venue</dt><dd>' + esc(ev.venue) + '</dd>' : '') +
+              (ev.address ? '<dt>Address</dt><dd>' + esc(ev.address) + '</dd>' : '') +
+              (ev.ages    ? '<dt>Ages</dt><dd>' + esc(ev.ages) + '</dd>' : '') +
+              (ev.ticket_url ? '<dt>Tickets</dt><dd><a href="' + esc(ev.ticket_url) +
+                  '" target="_blank" rel="noopener nofollow">' + esc(ev.ticket_url) + '</a></dd>' : '') +
+              (ev.submitted_by ? '<dt>By</dt><dd>' + esc(ev.submitted_by) + '</dd>' : '') +
+              '<dt>Contact</dt><dd>' + esc(ev.contact_email) + '</dd>' +
+              '<dt>Slug</dt><dd><code>' + esc(ev.slug) + '</code></dd>' +
+            '</dl>' +
+          '</div>' +
+          '<div class="admin-actions">' +
+            '<button class="ok" type="button">Approve</button>' +
+            '<button class="no" type="button">Reject</button>' +
+          '</div>';
+
+        card.querySelector(".ok").addEventListener("click", () => {
+          busy(card, true);
+          rpc("admin_set_event_approved", { p_id: ev.id, p_approved: true })
+            .then(() => card.remove()).then(loadEvents)
+            .catch((e) => { busy(card, false); alert(e.message); });
+        });
+        card.querySelector(".no").addEventListener("click", () => {
+          if(!confirm("Reject and delete “" + ev.title + "”?")) return;
+          busy(card, true);
+          rpc("admin_delete_event", { p_id: ev.id })
+            .then(() => card.remove()).then(loadEvents)
+            .catch((e) => { busy(card, false); alert(e.message); });
+        });
+        evQueue.appendChild(card);
+      });
+    }).catch((e) => {
+      evQueue.innerHTML = '<p class="admin-empty">' + esc(e.message) + '</p>';
+    });
+  }
+
+  function busy(card, on){
+    card.querySelectorAll("button").forEach((b) => { b.disabled = on; });
+    card.classList.toggle("is-busy", on);
+  }
+
+  /* ---------- photos queue ---------- */
+  const phQueue = document.getElementById("photos-queue");
+  const phN = document.getElementById("ph-n");
+
+  // Pending photos are private, so preview them through a signed URL that
+  // only an authenticated admin can mint.
+  function signed(path){
+    return fetch(URL_ + "/storage/v1/object/sign/" + PENDING + "/" + path, {
+      method: "POST", headers: authHeaders(), body: JSON.stringify({ expiresIn: 3600 })
+    })
+    .then((r) => r.ok ? r.json() : Promise.reject(new Error("sign failed")))
+    .then((d) => URL_ + "/storage/v1" + d.signedURL);
+  }
+
+  function loadPhotos(){
+    rpc("admin_pending_photos").then((rows) => {
+      const list = rows || [];
+      phN.textContent = list.length ? "(" + list.length + ")" : "";
+      if(!list.length){ phQueue.innerHTML = '<p class="admin-empty">Nothing waiting.</p>'; return; }
+      phQueue.innerHTML = "";
+      list.forEach((ph) => {
+        const cell = document.createElement("figure");
+        cell.className = "admin-shot";
+        cell.innerHTML =
+          '<div class="admin-shot-img"><span class="admin-shot-load">Loading…</span></div>' +
+          '<figcaption>' +
+            '<b>' + esc(ph.event_slug) + '</b>' +
+            (ph.caption ? '<span>' + esc(ph.caption) + '</span>' : '') +
+            (ph.submitted_by ? '<span class="shot-by">' + esc(ph.submitted_by) + '</span>' : '') +
+          '</figcaption>' +
+          '<div class="admin-actions">' +
+            '<button class="ok" type="button">Approve</button>' +
+            '<button class="no" type="button">Reject</button>' +
+          '</div>';
+
+        signed(ph.path).then((u) => {
+          cell.querySelector(".admin-shot-img").innerHTML =
+            '<img src="' + u + '" alt="Pending photo for ' + esc(ph.event_slug) + '">';
+        }).catch(() => {
+          cell.querySelector(".admin-shot-img").textContent = "Preview unavailable";
+        });
+
+        cell.querySelector(".ok").addEventListener("click", () => {
+          busy(cell, true);
+          approvePhoto(ph)
+            .then(() => { cell.remove(); loadPhotos(); })
+            .catch((e) => { busy(cell, false); alert(e.message); });
+        });
+        cell.querySelector(".no").addEventListener("click", () => {
+          if(!confirm("Reject and delete this photo?")) return;
+          busy(cell, true);
+          deleteObject(PENDING, ph.path)
+            .catch(() => {})                       // row removal is what matters
+            .then(() => rpc("admin_delete_photo", { p_id: ph.id }))
+            .then(() => { cell.remove(); loadPhotos(); })
+            .catch((e) => { busy(cell, false); alert(e.message); });
+        });
+
+        phQueue.appendChild(cell);
+      });
+    }).catch((e) => {
+      phQueue.innerHTML = '<p class="admin-empty">' + esc(e.message) + '</p>';
+    });
+  }
+
+  /* Approval publishes the file, then flips the row — in that order, so a
+     failed publish never leaves an approved row pointing at a missing image.
+     /object/move 404s across buckets on this Storage version; /object/copy
+     handles it, with a download-and-reupload fallback behind that. */
+  function approvePhoto(ph){
+    return copyToPublic(ph.path)
+      .catch(() => copyThroughBrowser(ph.path))
+      .then(() => deleteObject(PENDING, ph.path).catch(() => true))
+      .then(() => rpc("admin_approve_photo", { p_id: ph.id }));
+  }
+
+  function copyToPublic(path){
+    return fetch(URL_ + "/storage/v1/object/copy", {
+      method: "POST", headers: authHeaders(),
+      body: JSON.stringify({
+        bucketId: PENDING, sourceKey: path,
+        destinationBucket: PUBLIC, destinationKey: path
+      })
+    }).then((r) => r.ok ? true : Promise.reject(new Error("copy unavailable")));
+  }
+
+  function copyThroughBrowser(path){
+    return signed(path)
+      .then((u) => fetch(u))
+      .then((r) => r.ok ? r.blob() : Promise.reject(new Error("couldn't read pending file")))
+      .then((blob) => fetch(URL_ + "/storage/v1/object/" + PUBLIC + "/" + path, {
+        method: "POST",
+        headers: {
+          "apikey": KEY,
+          "Authorization": "Bearer " + token,
+          "Content-Type": blob.type || "image/jpeg",
+          "x-upsert": "true"
+        },
+        body: blob
+      }))
+      .then((r) => r.ok ? true : Promise.reject(new Error("couldn't publish the photo")));
+  }
+
+  function deleteObject(bucket, path){
+    return fetch(URL_ + "/storage/v1/object/" + bucket + "/" + path, {
+      method: "DELETE", headers: authHeaders()
+    }).then((r) => r.ok ? true : Promise.reject(new Error("delete failed")));
+  }
+
+  /* ---------- resume an existing session ---------- */
+  try {
+    const saved = sessionStorage.getItem("admin-token");
+    if(saved){ token = saved; showQueue(); }
+  } catch(e){}
+})();
+</script>
+<script src="assets/nav.js"></script>
+</body>
+</html>

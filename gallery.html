@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery — pictures from the scene — Hindy-eleven</title>
+<meta name="description" content="Pictures from Nigerian events around Indiana, shared by the people who were there. Filter by event.">
+<link rel="canonical" href="https://hindyeleven.com/gallery.html">
+<meta property="og:title" content="Gallery — pictures from the scene">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hindy-eleven">
+<meta property="og:url" content="https://hindyeleven.com/gallery.html">
+<meta property="og:image" content="https://hindyeleven.com/assets/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="glass-header">
+  <a class="wordmark" href="index.html">Hindy<span class="dash" aria-hidden="true"></span><em>eleven</em></a>
+  <nav aria-label="Main">
+    <a href="index.html#events">The Scene</a>
+    <a href="music.html">Sounds</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="index.html#gist">The Gist</a>
+    <a href="places.html">Places</a>
+    <a href="index.html#join" class="btn-gold">Members</a>
+  </nav>
+</header>
+
+<main class="gallery-wrap">
+
+  <div class="places-head">
+    <span class="kicker">The Gallery</span>
+    <h1>Pictures from the scene</h1>
+    <p>Shot by the people who were there. Pick an event to see just those nights,
+       or add your own from any event page.</p>
+  </div>
+
+  <div class="place-filters" id="event-filters" role="group" aria-label="Filter photos by event">
+    <button type="button" class="chip is-on" data-filter="all" aria-pressed="true">All events</button>
+  </div>
+
+  <p class="places-count" id="shot-count" role="status" aria-live="polite"></p>
+
+  <div class="gallery" id="gallery-grid"></div>
+
+  <p class="gallery-empty" id="gallery-empty" hidden>
+    No pictures yet. Once a night has happened, head to its page and add yours —
+    every photo is checked by an editor before it appears here.
+  </p>
+
+  <section class="suggest-card">
+    <h2>Got pictures from a night?</h2>
+    <p>Open the event and add them — captions optional, no account needed.</p>
+    <a class="article-cta" href="index.html#past">Find the event →</a>
+  </section>
+
+</main>
+
+<footer>
+  <span>© 2026 Hindy-eleven</span>
+  <span class="fm">Naija culture, Indiana address.</span>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  const URL_ = "https://iixdwdrraellcsnxnifb.supabase.co";
+  const KEY = "sb_publishable_6HzNYHjLE9zTguF-DCpHmg_2tcVBlYa";
+  const PUBLIC = URL_ + "/storage/v1/object/public/event-photos/";
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
+      { "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]
+    ));
+  }
+  function rpc(fn, body){
+    return fetch(URL_ + "/rest/v1/rpc/" + fn, {
+      method: "POST",
+      headers: { "apikey": KEY, "Authorization": "Bearer " + KEY, "Content-Type": "application/json" },
+      body: JSON.stringify(body || {})
+    }).then((r) => r.ok ? r.json() : Promise.reject(new Error("failed")));
+  }
+
+  const filters = document.getElementById("event-filters");
+  const grid = document.getElementById("gallery-grid");
+  const empty = document.getElementById("gallery-empty");
+  const count = document.getElementById("shot-count");
+
+  // Deep link: gallery.html?event=<slug> opens straight to that event.
+  const wanted = new URLSearchParams(location.search).get("event");
+  let photos = [];
+
+  function render(slug){
+    const list = slug === "all" ? photos : photos.filter((p) => p.event_slug === slug);
+    grid.innerHTML = "";
+    empty.hidden = photos.length > 0;
+    count.textContent = photos.length
+      ? list.length + (list.length === 1 ? " photo" : " photos")
+      : "";
+
+    list.forEach((ph) => {
+      const fig = document.createElement("figure");
+      fig.className = "shot";
+      const when = ph.event_starts_at
+        ? new Date(ph.event_starts_at).toLocaleDateString(undefined,
+            { month:"short", day:"numeric", year:"numeric" })
+        : "";
+      fig.innerHTML =
+        '<img loading="lazy" src="' + PUBLIC + encodeURI(ph.path) + '" alt="' +
+          esc(ph.caption || ("Photo from " + ph.event_title)) + '">' +
+        '<figcaption>' +
+          '<a class="shot-tag" href="gallery.html?event=' +
+            encodeURIComponent(ph.event_slug) + '">' + esc(ph.event_title) + '</a>' +
+          (when ? '<span class="shot-when">' + esc(when) + '</span>' : '') +
+          (ph.caption ? '<span>' + esc(ph.caption) + '</span>' : '') +
+          (ph.submitted_by ? '<span class="shot-by">' + esc(ph.submitted_by) + '</span>' : '') +
+        '</figcaption>';
+      grid.appendChild(fig);
+    });
+
+    Array.from(filters.children).forEach((c) => {
+      const on = c.dataset.filter === slug;
+      c.classList.toggle("is-on", on);
+      c.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+
+  Promise.all([
+    rpc("get_gallery", { p_slug: null }).catch(() => []),
+    rpc("get_photo_events").catch(() => [])
+  ]).then(([shots, events]) => {
+    photos = shots || [];
+
+    // A chip per event that actually has photos — no empty filters.
+    (events || []).forEach((ev) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.dataset.filter = ev.slug;
+      b.setAttribute("aria-pressed", "false");
+      b.textContent = ev.title + " (" + ev.photo_count + ")";
+      b.addEventListener("click", () => render(ev.slug));
+      filters.appendChild(b);
+    });
+
+    filters.querySelector('[data-filter=all]')
+           .addEventListener("click", () => render("all"));
+
+    const known = (events || []).some((e) => e.slug === wanted);
+    render(known ? wanted : "all");
+  });
+})();
+</script>
+<script src="assets/nav.js"></script>
+</body>
+</html>

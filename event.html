@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event — Hindy-eleven</title>
+<meta name="description" content="An event for Nigerians in Indiana, listed on Hindy-eleven.">
+<!-- Community-listed events render from the database, so this page has no
+     per-event JSON-LD. Flagship events still get hand-built pages in /events/. -->
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="glass-header">
+  <a class="wordmark" href="index.html">Hindy<span class="dash" aria-hidden="true"></span><em>eleven</em></a>
+  <nav aria-label="Main">
+    <a href="index.html#events">The Scene</a>
+    <a href="music.html">Sounds</a>
+    <a href="index.html#gist">The Gist</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="places.html">Places</a>
+    <a href="index.html#join" class="btn-gold">Members</a>
+  </nav>
+</header>
+
+<main class="article-wrap" id="event-main">
+  <a class="back-link" href="index.html#events">← All events</a>
+  <p class="loading" id="event-loading">Loading event…</p>
+</main>
+
+<footer>
+  <span>© 2026 Hindy-eleven</span>
+  <span class="fm">Naija culture, Indiana address.</span>
+</footer>
+
+<script>
+(function(){
+  const SUPABASE_URL = "https://iixdwdrraellcsnxnifb.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_6HzNYHjLE9zTguF-DCpHmg_2tcVBlYa";
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
+      { "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]
+    ));
+  }
+
+  const slug = new URLSearchParams(location.search).get("slug");
+  const main = document.getElementById("event-main");
+  const loading = document.getElementById("event-loading");
+
+  function notFound(text){
+    loading.outerHTML =
+      '<div class="article-head">' +
+        '<span class="kicker">Not found</span>' +
+        '<h1>We couldn\'t find that event</h1>' +
+        '<p class="standfirst">' + esc(text) + '</p>' +
+      '</div>' +
+      '<p><a class="article-cta" href="index.html#events">See what\'s on →</a></p>';
+  }
+
+  if(!slug){ notFound("No event was specified."); return; }
+
+  fetch(SUPABASE_URL + "/rest/v1/rpc/get_event", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ p_slug: slug })
+  })
+  .then((r) => r.ok ? r.json() : Promise.reject(new Error("lookup failed")))
+  .then((rows) => {
+    const ev = rows && rows[0];
+    if(!ev){
+      notFound("It may have been removed, or it's still waiting to be approved.");
+      return;
+    }
+
+    // Flagship events have a hand-built page with full markup — send people
+    // there rather than rendering a thinner duplicate of it here.
+    if(ev.page_url){ location.replace(ev.page_url); return; }
+
+    const d = new Date(ev.starts_at);
+    const when = d.toLocaleString(undefined, {
+      weekday:"long", year:"numeric", month:"long", day:"numeric",
+      hour:"numeric", minute:"2-digit"
+    });
+
+    document.title = ev.title + " — Hindy-eleven";
+    const desc = ev.blurb || (ev.title + " — an event for Nigerians in Indiana.");
+    document.querySelector('meta[name=description]').setAttribute("content", desc);
+
+    const facts =
+      '<dl class="fact-box">' +
+        '<dt>When</dt><dd>' + esc(when) + '</dd>' +
+        (ev.venue || ev.address
+          ? '<dt>Where</dt><dd>' +
+            esc([ev.venue, ev.address].filter(Boolean).join(" · ")) + '</dd>' : '') +
+        (ev.ages ? '<dt>Ages</dt><dd>' + esc(ev.ages) + '</dd>' : '') +
+      '</dl>';
+
+    loading.outerHTML =
+      '<div class="article-head">' +
+        '<span class="kicker">Event · ' + esc(d.toLocaleDateString(undefined,
+            {weekday:"short", month:"short", day:"numeric", year:"numeric"})) + '</span>' +
+        '<h1>' + esc(ev.title) + '</h1>' +
+        (ev.blurb ? '<p class="standfirst">' + esc(ev.blurb) + '</p>' : '') +
+      '</div>' +
+      facts +
+      '<div data-rsvp="' + esc(ev.slug) + '" data-rsvp-mode="full"></div>' +
+      (ev.ticket_url
+        ? '<p><a class="article-cta" href="' + esc(ev.ticket_url) +
+          '" target="_blank" rel="noopener nofollow">Get tickets →</a></p>' : '') +
+      '<p class="community-note">Listed by the community and checked by an editor.</p>' +
+      // The date is what tells the photo widget to lead with "Were you there?"
+      '<section class="photos" id="photos" data-event-date="' + esc(ev.starts_at) +
+        '" data-photos="' + esc(ev.slug) + '"></section>';
+
+    // The widget scripts load after this, so they pick these up on DOMContentLoaded.
+    document.dispatchEvent(new CustomEvent("hindy:refresh"));
+  })
+  .catch(() => notFound("Something went wrong loading it. Try again shortly."));
+})();
+</script>
+<script src="assets/rsvp.js"></script>
+<script src="assets/community.js"></script>
+<script src="assets/nav.js"></script>
+</body>
+</html>

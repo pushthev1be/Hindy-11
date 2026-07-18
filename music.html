@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hindy Elite Sounds — Hindy-eleven</title>
+<meta name="description" content="The exclusive chart of Nigerian artists in Indianapolis. Vote your favorites up.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .chart-head h1 { font-family:var(--serif); font-weight:400; font-size:clamp(1.9rem,4.5vw,2.8rem); margin:.2em 0; }
+  .chart-head p { color:var(--muted); max-width:56ch; margin: 0 auto; line-height: 1.6; }
+  .submit-card {
+    margin-top: 56px;
+    padding: 32px;
+    border-radius: var(--radius);
+    background: var(--sand);
+    border: none;
+  }
+  .submit-card h2 { font-family:var(--serif); font-weight:400; margin:0 0 10px; font-size: 26px; }
+  .submit-card p { color:var(--muted); margin:0 0 20px; font-size:16px; }
+  .submit-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+  .submit-row input {
+    flex:1; min-width:180px; padding:13px 18px; border-radius:999px;
+    border:1px solid var(--line); font:inherit; background:var(--surface); color: var(--ink);
+  }
+  .submit-row input:focus { outline:none; border-color:var(--green); }
+  .submit-btn {
+    background:var(--green); color:#fff; border:0; border-radius:999px;
+    padding:13px 28px; font:inherit; font-weight:600; cursor:pointer; letter-spacing: 0.02em; font-size: 15px;
+    transition: background 0.2s;
+  }
+  .submit-btn:hover:not(:disabled) { background:var(--green-deep); }
+  .submit-btn:disabled { opacity:.55; }
+
+  /* Cover-art upload field */
+  .art-field { flex:1; min-width:240px; display:block; cursor:pointer; }
+  .art-field input[type=file] {
+    position:absolute; width:1px; height:1px; opacity:0;
+    overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;
+  }
+  .art-face {
+    display:flex; align-items:center; gap:14px;
+    padding:12px 18px; border-radius:var(--radius);
+    border:1px dashed var(--green); background:var(--surface);
+    transition:background .2s ease;
+  }
+  .art-field:hover .art-face { background:var(--pale); }
+  .art-field input:focus-visible + .art-face { outline:2px solid var(--green); outline-offset:2px; }
+  .art-thumb {
+    width:46px; height:46px; border-radius:8px; flex:0 0 auto;
+    background:var(--pale) center/cover no-repeat;
+    border:1px solid var(--line);
+  }
+  .art-text { display:flex; flex-direction:column; line-height:1.35; min-width:0; }
+  .art-text b { font-size:15px; font-weight:600; color:var(--ink); }
+  .art-text small { font-size:13px; color:var(--muted); }
+  .art-field.has-file .art-face { border-style:solid; }
+</style>
+</head>
+<body>
+
+<header class="glass-header">
+  <a class="wordmark" href="index.html">Hindy<span class="dash" aria-hidden="true"></span><em>eleven</em></a>
+  <nav aria-label="Main">
+    <a href="index.html#events">The Scene</a>
+    <a href="music.html">Sounds</a>
+    <a href="index.html#gist">The Gist</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="places.html">Places</a>
+    <a href="index.html#join" class="btn-gold">Members</a>
+  </nav>
+</header>
+
+<main class="chart-wrap">
+  <div class="chart-head">
+    <span class="tag gold" style="padding: 4px 12px; font-size: 11px;">Community Curated</span>
+    <h1>The Elite Sounds</h1>
+    <p>The definitive chart for Indiana's Nigerian diaspora. 
+       Vote your favorites up. One vote per track to keep the culture authentic.</p>
+  </div>
+
+  <ol class="chart" id="chart-list">
+    <li style="color:var(--muted); padding:24px 0; text-align:center; list-style:none;">Curating the culture...</li>
+  </ol>
+
+  <section class="submit-card glass-card hover-lift" aria-label="Submit a song">
+    <h2>Rep your sound</h2>
+    <p>Are you an Indiana-based artist with a track on Spotify, Apple Music, or Audiomack? Drop it here. Our curators review all submissions.</p>
+    <form id="submit-form" novalidate>
+      <div class="submit-row">
+        <input name="artist" type="text" placeholder="Artist name" required>
+        <input name="title" type="text" placeholder="Song title" required>
+      </div>
+      <div class="submit-row">
+        <input name="url" type="url" placeholder="https:// link to the song" required>
+        <input name="submitted_by" type="text" placeholder="Your name (optional)">
+      </div>
+      <div class="submit-row">
+        <label class="art-field" for="art-file">
+          <input id="art-file" name="art" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required>
+          <span class="art-face">
+            <span class="art-thumb" aria-hidden="true"></span>
+            <span class="art-text">
+              <b>Upload the cover art</b>
+              <small>Album or single artwork · JPG, PNG or WebP · up to 5 MB</small>
+            </span>
+          </span>
+        </label>
+      </div>
+      <button class="submit-btn" type="submit">Submit for review →</button>
+      <p class="submit-msg" style="color: var(--green); min-height:1.2em; margin:12px 0 0; font-size:14px;" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+
+<footer>
+  <span>© 2026 Hindy-eleven Elite</span>
+  <span class="fm">Naija culture, Indiana address.</span>
+</footer>
+
+<script src="assets/chart.js"></script>
+<script src="assets/nav.js"></script>
+</body>
+</html>

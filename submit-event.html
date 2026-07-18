@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List an event — Hindy-eleven</title>
+<meta name="description" content="Throwing something for the Nigerian community in Indiana? Send us the details and we'll put it on The Scene.">
+<link rel="canonical" href="https://hindyeleven.com/submit-event.html">
+<meta property="og:title" content="List an event — Hindy-eleven">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hindy-eleven">
+<meta property="og:url" content="https://hindyeleven.com/submit-event.html">
+<meta property="og:image" content="https://hindyeleven.com/assets/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="glass-header">
+  <a class="wordmark" href="index.html">Hindy<span class="dash" aria-hidden="true"></span><em>eleven</em></a>
+  <nav aria-label="Main">
+    <a href="index.html#events">The Scene</a>
+    <a href="music.html">Sounds</a>
+    <a href="index.html#gist">The Gist</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="places.html">Places</a>
+    <a href="index.html#join" class="btn-gold">Members</a>
+  </nav>
+</header>
+
+<main class="form-wrap">
+  <a class="back-link" href="index.html#events">← The Scene</a>
+
+  <div class="form-head">
+    <span class="kicker">List an event</span>
+    <h1>Throwing something?</h1>
+    <p>Parties, gala nights, church programmes, watch parties, pop-ups — if it's for
+       Nigerians in Indiana, we want it on The Scene. Send the details and we'll
+       review it, usually within a couple of days.</p>
+  </div>
+
+  <form class="le-form" data-submit-event novalidate>
+    <div class="le-row">
+      <label class="le-field le-wide">
+        <span>Event name *</span>
+        <input name="title" type="text" required maxlength="120" placeholder="The AfroWave Experience">
+      </label>
+    </div>
+
+    <div class="le-row">
+      <label class="le-field">
+        <span>Date *</span>
+        <input name="date" type="date" required>
+      </label>
+      <label class="le-field">
+        <span>Start time</span>
+        <input name="time" type="time" value="20:00">
+      </label>
+    </div>
+
+    <div class="le-row">
+      <label class="le-field">
+        <span>Venue</span>
+        <input name="venue" type="text" maxlength="120" placeholder="Turntable">
+      </label>
+      <label class="le-field">
+        <span>Address</span>
+        <input name="address" type="text" maxlength="160" placeholder="Street, Indianapolis, IN">
+      </label>
+    </div>
+
+    <div class="le-row">
+      <label class="le-field le-wide">
+        <span>What's the vibe?</span>
+        <textarea name="blurb" rows="3" maxlength="300" placeholder="Afrobeats and Amapiano till late, live dancers, guest DJ from Lagos."></textarea>
+      </label>
+    </div>
+
+    <div class="le-row">
+      <label class="le-field">
+        <span>Ages</span>
+        <input name="ages" type="text" maxlength="40" placeholder="18+ / 21+ / all ages">
+      </label>
+      <label class="le-field">
+        <span>Ticket link</span>
+        <input name="ticket" type="url" maxlength="300" placeholder="https://">
+      </label>
+    </div>
+
+    <div class="le-row">
+      <label class="le-field">
+        <span>Your name</span>
+        <input name="by" type="text" maxlength="60" placeholder="Who's asking?">
+      </label>
+      <label class="le-field">
+        <span>Contact email *</span>
+        <input name="email" type="email" required maxlength="160" placeholder="you@example.com">
+      </label>
+    </div>
+
+    <p class="le-note">
+      Your email stays private — it's only so we can reach you about this event.
+      Nothing goes live until an editor approves it.
+    </p>
+
+    <button class="le-btn" type="submit">Send for review →</button>
+    <p class="le-msg" role="status" aria-live="polite"></p>
+  </form>
+</main>
+
+<footer>
+  <span>© 2026 Hindy-eleven</span>
+  <span class="fm">Naija culture, Indiana address.</span>
+</footer>
+
+<script src="assets/community.js"></script>
+<script src="assets/nav.js"></script>
+</body>
+</html>
