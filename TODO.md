@@ -54,6 +54,31 @@
       chart artwork is data, not code (the current artist-name fallback in chart.js keeps
       working either way).
 
+## Stories serial (added Jul 23)
+
+- Stories tab live: `stories.html` (index) + `story.html` (reader), backed by a locked
+  `stories` table. Compose/edit/publish from admin.html's "Post a story" section.
+- Weekly Monday cadence: write the episode, set the publish date to the coming Monday, tick
+  Published — it goes live automatically that day (public RPC only returns published episodes
+  whose publish_at has passed; no cron needed). Leave Published unticked to keep a draft.
+- Body is plain text: blank line = new paragraph. Slugs auto-generate from episode # + title.
+- Optional next: feature the latest episode on the homepage; email subscribers when a new
+  episode drops (ties into the newsletter list).
+
+### Voice narration (Google Cloud TTS) — ONE activation step left
+- Built: audio_url on stories, public `story-audio` bucket, a `generate-story-audio` Edge
+  Function (holds the Google key server-side, chunks long episodes, uploads the MP3),
+  a "Generate audio" button per episode in admin, and a Listen player on the reader.
+- Verified: auth gate works (401 unauth), admin call reaches Google step. Only the key is missing.
+- **TO ACTIVATE (yours):**
+  1. Google Cloud Console → create/select a project → enable **Cloud Text-to-Speech API** →
+     APIs & Services → Credentials → Create credentials → **API key**. (Restrict it to the
+     Text-to-Speech API.) Free tier: ~1M Neural2 chars/month — well beyond weekly episodes.
+  2. Supabase dashboard → Project → Edge Functions → **Manage secrets** → add
+     `GOOGLE_TTS_API_KEY` = your key. (Optional: `STORY_TTS_VOICE`, default `en-US-Neural2-D`.)
+  3. In admin, open any episode → **Generate audio**. The Listen bar then appears on that
+     episode's page. Send me the word once the key's in and I'll generate + verify the first one.
+
 ## Launch week — post-launch (the niche plan)
 
 - [ ] **WhatsApp share buttons** on event pages and galleries — the older generation lives on

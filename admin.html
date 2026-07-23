@@ -21,6 +21,7 @@
     <a href="gallery.html">Gallery</a>
     <a href="places.html">Places</a>
     <a href="index.html#gist">News</a>
+<a href="stories.html">Stories</a>
     <a href="contact.html">Contact</a>
     <a href="submit-event.html" class="accent">List an event</a>
     <a href="index.html#join" class="btn-gold">Members</a>
@@ -62,6 +63,51 @@
       <button class="chip" id="signout" type="button">Sign out</button>
     </div>
 
+    <h2 class="admin-sec">Post a story <span class="admin-n" id="st-n"></span></h2>
+    <form id="story-form" class="le-form" novalidate>
+      <input type="hidden" name="id">
+      <div class="le-row">
+        <label class="le-field" style="max-width:150px; flex:0 0 auto">
+          <span>Episode #</span>
+          <input name="episode_number" type="number" min="1" step="1" placeholder="1">
+        </label>
+        <label class="le-field">
+          <span>Title</span>
+          <input name="title" type="text" maxlength="160" required placeholder="The Landlord's Daughter">
+        </label>
+      </div>
+      <div class="le-row">
+        <label class="le-field le-wide">
+          <span>Teaser (optional — shows in the list)</span>
+          <input name="excerpt" type="text" maxlength="400" placeholder="One line to pull them in.">
+        </label>
+      </div>
+      <div class="le-row">
+        <label class="le-field le-wide">
+          <span>The episode</span>
+          <textarea name="body" rows="14" required placeholder="Write the episode here. Leave a blank line between paragraphs."></textarea>
+        </label>
+      </div>
+      <div class="le-row">
+        <label class="le-field" style="max-width:220px; flex:0 0 auto">
+          <span>Publish date</span>
+          <input name="publish_date" type="date">
+        </label>
+        <label class="le-field" style="justify-content:flex-end">
+          <span class="story-check">
+            <input name="published" type="checkbox">
+            Published <small>— tick to make it live on/after the date; leave unticked to save a draft</small>
+          </span>
+        </label>
+      </div>
+      <div class="story-actions">
+        <button class="le-btn" type="submit">Save episode</button>
+        <button class="chip" type="button" id="story-cancel" hidden>Cancel edit</button>
+      </div>
+      <p class="le-msg" id="story-msg" role="status" aria-live="polite"></p>
+    </form>
+    <div id="stories-admin" class="admin-queue" style="margin-top:18px"><p class="admin-empty">Loading…</p></div>
+
     <h2 class="admin-sec">Events <span class="admin-n" id="ev-n"></span></h2>
     <div id="events-queue" class="admin-queue"><p class="admin-empty">Loading…</p></div>
 
@@ -87,6 +133,7 @@
     <a href="gallery.html">Gallery</a>
     <a href="places.html">Places</a>
     <a href="submit-event.html">List an event</a>
+<a href="stories.html">Stories</a>
     <a href="contact.html">Contact</a>
     <a href="index.html#join">Membership</a>
   </nav>
@@ -183,6 +230,146 @@
     loadPhotos();
     loadContacts();
     loadSubs();
+    loadStories();
+  }
+
+  /* ---------- stories composer ---------- */
+  const storyForm = document.getElementById("story-form");
+  const storyMsg = document.getElementById("story-msg");
+  const storyCancel = document.getElementById("story-cancel");
+  const storiesAdmin = document.getElementById("stories-admin");
+  const stN = document.getElementById("st-n");
+
+  function slugify(title, ep){
+    const base = String(title || "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 160) || "episode";
+    return (ep || ep === 0 ? "ep-" + ep + "-" : "") + base;
+  }
+  function todayLocal(){
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+           "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function resetStoryForm(){
+    storyForm.reset();
+    storyForm.id.value = "";
+    storyForm.publish_date.value = todayLocal();
+    storyCancel.hidden = true;
+    storyMsg.textContent = "";
+    storyForm.querySelector("button[type=submit]").textContent = "Save episode";
+  }
+
+  storyCancel.addEventListener("click", resetStoryForm);
+
+  storyForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = storyForm.elements;
+    const title = f.title.value.trim();
+    const body = f.body.value.trim();
+    if(title.length < 1){ storyMsg.textContent = "Give the episode a title."; return; }
+    if(body.length < 1){ storyMsg.textContent = "The episode is empty."; return; }
+
+    const ep = f.episode_number.value ? parseInt(f.episode_number.value, 10) : null;
+    const dateStr = f.publish_date.value || todayLocal();
+    const publishAt = new Date(dateStr + "T09:00:00").toISOString();
+
+    const btn = storyForm.querySelector("button[type=submit]");
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = "Saving…";
+    storyMsg.textContent = "";
+
+    rpc("admin_save_story", {
+      p_id: f.id.value || null,
+      p_episode_number: ep,
+      p_title: title,
+      p_slug: slugify(title, ep),
+      p_excerpt: f.excerpt.value.trim(),
+      p_body: body,
+      p_published: f.published.checked,
+      p_publish_at: publishAt
+    }).then(() => {
+      resetStoryForm();
+      storyMsg.textContent = "Saved.";
+      loadStories();
+    }).catch((err) => {
+      btn.disabled = false;
+      btn.textContent = original;
+      storyMsg.textContent = err.message || "Couldn't save. Try again.";
+    });
+  });
+
+  function storyBadge(s){
+    if(!s.published) return "Draft";
+    const when = new Date(s.publish_at);
+    const label = when.toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
+    return when.getTime() > Date.now() ? "Scheduled · " + label : "Published · " + label;
+  }
+
+  function loadStories(){
+    if(storyForm && !storyForm.publish_date.value) storyForm.publish_date.value = todayLocal();
+    rpc("admin_list_stories").then((rows) => {
+      const list = rows || [];
+      stN.textContent = list.length ? "(" + list.length + ")" : "";
+      if(!list.length){ storiesAdmin.innerHTML = '<p class="admin-empty">No episodes yet.</p>'; return; }
+      storiesAdmin.innerHTML = "";
+      list.forEach((s) => {
+        const card = document.createElement("article");
+        card.className = "admin-card";
+        card.innerHTML =
+          '<div class="admin-card-body">' +
+            '<h3>' + (s.episode_number || s.episode_number === 0 ? "Ep " + s.episode_number + " · " : "") +
+              esc(s.title) + '</h3>' +
+            '<p class="admin-when">' + esc(storyBadge(s)) +
+              (s.audio_url ? ' · 🔊 audio ready' : '') + '</p>' +
+            (s.excerpt ? '<p>' + esc(s.excerpt) + '</p>' : '') +
+          '</div>' +
+          '<div class="admin-actions">' +
+            '<button class="edit" type="button">Edit</button>' +
+            '<button class="ok" data-audio type="button">' +
+              (s.audio_url ? "Regenerate audio" : "Generate audio") + '</button>' +
+            '<button class="no" type="button">Delete</button>' +
+          '</div>';
+        card.querySelector("[data-audio]").addEventListener("click", () => {
+          const ab = card.querySelector("[data-audio]");
+          busy(card, true);
+          ab.textContent = "Generating…";
+          fetch(URL_ + "/functions/v1/generate-story-audio", {
+            method: "POST", headers: authHeaders(), body: JSON.stringify({ id: s.id })
+          }).then(async (r) => {
+            const d = await r.json().catch(() => null);
+            if(!r.ok) throw new Error((d && d.error) || "Generation failed");
+            loadStories();
+          }).catch((e) => { busy(card, false); alert(e.message); });
+        });
+        card.querySelector(".edit").addEventListener("click", () => {
+          const f = storyForm.elements;
+          f.id.value = s.id;
+          f.episode_number.value = (s.episode_number || s.episode_number === 0) ? s.episode_number : "";
+          f.title.value = s.title;
+          f.excerpt.value = s.excerpt || "";
+          f.body.value = s.body;
+          f.published.checked = !!s.published;
+          const d = new Date(s.publish_at);
+          f.publish_date.value = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+                                 "-" + String(d.getDate()).padStart(2, "0");
+          storyCancel.hidden = false;
+          storyForm.querySelector("button[type=submit]").textContent = "Update episode";
+          storyMsg.textContent = "";
+          storyForm.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        card.querySelector(".no").addEventListener("click", () => {
+          if(!confirm("Delete “" + s.title + "”? This can't be undone.")) return;
+          busy(card, true);
+          rpc("admin_delete_story", { p_id: s.id })
+            .then(() => { card.remove(); loadStories(); })
+            .catch((e) => { busy(card, false); alert(e.message); });
+        });
+        storiesAdmin.appendChild(card);
+      });
+    }).catch((e) => {
+      storiesAdmin.innerHTML = '<p class="admin-empty">' + esc(e.message) + '</p>';
+    });
   }
 
   /* ---------- contact messages ---------- */

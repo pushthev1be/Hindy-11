@@ -85,6 +85,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://hindy.online/stories.html</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://hindy.online/gallery.html</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>weekly</changefreq>
