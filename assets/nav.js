@@ -31,8 +31,10 @@
     scrim.hidden = true;
     document.body.appendChild(scrim);
 
-    // Move the existing nav into a panel rather than rebuilding it,
+    // Clone the existing nav into a panel rather than rebuilding it,
     // so every page's own links (and their relative paths) survive.
+    // The original stays inline in the header for wide screens; CSS
+    // decides which of the two is visible at a given width.
     // The panel must hang off <body>, NOT the header: the header is a
     // z-index:100 stacking context, which would trap the panel beneath
     // the body-level scrim and make every link unclickable.
@@ -52,8 +54,9 @@
     close.innerHTML = "&times;";
     head.appendChild(close);
 
+    const menu = nav.cloneNode(true);
     panel.appendChild(head);
-    panel.appendChild(nav);
+    panel.appendChild(menu);
 
     let open = false;
     let lastFocus = null;
@@ -98,7 +101,7 @@
     });
 
     // Following a link closes the panel (matters for same-page anchors).
-    nav.addEventListener("click", (e) => {
+    menu.addEventListener("click", (e) => {
       if(e.target.closest("a")) setOpen(false);
     });
 
@@ -115,9 +118,9 @@
       }
     }
 
-    // Mark the current page so the panel shows where you are.
+    // Mark the current page so both navs show where you are.
     const here = location.pathname.replace(/\/$/, "/index.html");
-    panel.querySelectorAll("a[href]").forEach((a) => {
+    document.querySelectorAll(".glass-header nav a[href], .nav-panel a[href]").forEach((a) => {
       const path = a.getAttribute("href").split("#")[0];
       if(!path) return;
       const resolved = new URL(a.href).pathname.replace(/\/$/, "/index.html");

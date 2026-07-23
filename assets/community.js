@@ -94,7 +94,7 @@
       '</div>' +
       '<div class="event-aside">' +
         '<div class="event-going">' + shots + '</div>' +
-        '<div class="event-media"><div class="ph anim-bg green-glow"></div></div>' +
+        '<div class="event-media"><img class="ph-logo" src="assets/logo-tile.png" alt="" loading="lazy"></div>' +
       '</div>';
     return row;
   }
@@ -338,7 +338,8 @@
         p_venue: form.venue.value.trim(),
         p_address: form.address.value.trim(),
         p_ages: form.ages.value.trim(),
-        p_ticket_url: form.ticket.value.trim(),
+        /* The RPC still expects the param, but the site doesn't do ticketing. */
+        p_ticket_url: "",
         p_submitted_by: form.by.value.trim(),
         p_contact_email: email
       }).then(() => {

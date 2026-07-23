@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -15,10 +16,12 @@
 <header class="glass-header">
   <a class="wordmark" href="index.html">Hindy<span class="dash" aria-hidden="true"></span><em>eleven</em></a>
   <nav aria-label="Main">
-    <a href="index.html#events">The Scene</a>
-    <a href="music.html">Sounds</a>
+    <a href="index.html#events">Events</a>
+    <a href="music.html">Music</a>
     <a href="gallery.html">Gallery</a>
     <a href="places.html">Places</a>
+    <a href="index.html#gist">News</a>
+    <a href="submit-event.html" class="accent">List an event</a>
     <a href="index.html#join" class="btn-gold">Members</a>
   </nav>
 </header>
@@ -61,6 +64,9 @@
     <h2 class="admin-sec">Events <span class="admin-n" id="ev-n"></span></h2>
     <div id="events-queue" class="admin-queue"><p class="admin-empty">Loading…</p></div>
 
+    <h2 class="admin-sec">Tracks <span class="admin-n" id="tr-n"></span></h2>
+    <div id="tracks-queue" class="admin-queue"><p class="admin-empty">Loading…</p></div>
+
     <h2 class="admin-sec">Photos <span class="admin-n" id="ph-n"></span></h2>
     <div id="photos-queue" class="admin-grid"><p class="admin-empty">Loading…</p></div>
   </section>
@@ -68,8 +74,18 @@
 </main>
 
 <footer>
-  <span>© 2026 Hindy-eleven</span>
-  <span class="fm">Naija culture, Indiana address.</span>
+  <nav class="foot-nav" aria-label="Footer">
+    <a href="index.html#events">Events</a>
+    <a href="music.html">Music chart</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="places.html">Places</a>
+    <a href="submit-event.html">List an event</a>
+    <a href="index.html#join">Membership</a>
+  </nav>
+  <div class="foot-base">
+    <span>© 2026 Hindy-eleven</span>
+    <span class="fm">Naija culture, Indiana address.</span>
+  </div>
 </footer>
 
 <script>
@@ -155,6 +171,7 @@
     try { email = sessionStorage.getItem("admin-email") || ""; } catch(e){}
     document.getElementById("admin-hello").textContent = email ? ("Pending · " + email) : "Pending";
     loadEvents();
+    loadTracks();
     loadPhotos();
   }
 
@@ -183,8 +200,6 @@
               (ev.venue   ? '<dt>Venue</dt><dd>' + esc(ev.venue) + '</dd>' : '') +
               (ev.address ? '<dt>Address</dt><dd>' + esc(ev.address) + '</dd>' : '') +
               (ev.ages    ? '<dt>Ages</dt><dd>' + esc(ev.ages) + '</dd>' : '') +
-              (ev.ticket_url ? '<dt>Tickets</dt><dd><a href="' + esc(ev.ticket_url) +
-                  '" target="_blank" rel="noopener nofollow">' + esc(ev.ticket_url) + '</a></dd>' : '') +
               (ev.submitted_by ? '<dt>By</dt><dd>' + esc(ev.submitted_by) + '</dd>' : '') +
               '<dt>Contact</dt><dd>' + esc(ev.contact_email) + '</dd>' +
               '<dt>Slug</dt><dd><code>' + esc(ev.slug) + '</code></dd>' +
@@ -218,6 +233,56 @@
   function busy(card, on){
     card.querySelectorAll("button").forEach((b) => { b.disabled = on; });
     card.classList.toggle("is-busy", on);
+  }
+
+  /* ---------- tracks queue ---------- */
+  const trQueue = document.getElementById("tracks-queue");
+  const trN = document.getElementById("tr-n");
+
+  function loadTracks(){
+    rpc("admin_pending_tracks").then((rows) => {
+      const list = rows || [];
+      trN.textContent = list.length ? "(" + list.length + ")" : "";
+      if(!list.length){ trQueue.innerHTML = '<p class="admin-empty">Nothing waiting.</p>'; return; }
+      trQueue.innerHTML = "";
+      list.forEach((t) => {
+        const card = document.createElement("article");
+        card.className = "admin-card";
+        card.innerHTML =
+          '<div class="admin-card-body">' +
+            '<h3>' + esc(t.title) + '</h3>' +
+            '<p class="admin-when">' + esc(t.artist) + (t.platform ? ' · ' + esc(t.platform) : '') + '</p>' +
+            '<dl class="admin-meta">' +
+              '<dt>Link</dt><dd><a href="' + esc(t.listen_url) + '" target="_blank" rel="noopener nofollow">' +
+                esc(t.listen_url) + '</a></dd>' +
+              (t.art_url ? '<dt>Art</dt><dd><a href="' + esc(t.art_url) +
+                  '" target="_blank" rel="noopener">view cover</a></dd>' : '') +
+              (t.submitted_by ? '<dt>By</dt><dd>' + esc(t.submitted_by) + '</dd>' : '') +
+            '</dl>' +
+          '</div>' +
+          '<div class="admin-actions">' +
+            '<button class="ok" type="button">Approve</button>' +
+            '<button class="no" type="button">Reject</button>' +
+          '</div>';
+
+        card.querySelector(".ok").addEventListener("click", () => {
+          busy(card, true);
+          rpc("admin_set_track_approved", { p_id: t.id, p_approved: true })
+            .then(() => card.remove()).then(loadTracks)
+            .catch((e) => { busy(card, false); alert(e.message); });
+        });
+        card.querySelector(".no").addEventListener("click", () => {
+          if(!confirm("Reject and delete “" + t.title + "”?")) return;
+          busy(card, true);
+          rpc("admin_delete_track", { p_id: t.id })
+            .then(() => card.remove()).then(loadTracks)
+            .catch((e) => { busy(card, false); alert(e.message); });
+        });
+        trQueue.appendChild(card);
+      });
+    }).catch((e) => {
+      trQueue.innerHTML = '<p class="admin-empty">' + esc(e.message) + '</p>';
+    });
   }
 
   /* ---------- photos queue ---------- */

@@ -22,6 +22,8 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+html { overflow-x: clip; }
+
 body {
   margin: 0;
   background: var(--bg);
@@ -31,6 +33,39 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+   ATMOSPHERE
+   Two fixed, non-interactive layers shared by every page:
+   ::before — a soft radial light plus two blurred colour fields
+              (pale green top-right, warm beige bottom-left);
+   ::after  — SVG paper grain over everything, multiply-blended.
+   ============================================================ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(640px 640px at 88% -8%, rgba(94, 130, 102, 0.15) 0%, rgba(94, 130, 102, 0) 70%),
+    radial-gradient(720px 720px at 6% 104%, rgba(230, 217, 190, 0.55) 0%, rgba(237, 228, 214, 0) 70%),
+    repeating-linear-gradient(to right, rgba(26, 29, 26, 0.032) 0 1px, transparent 1px 56px),
+    repeating-linear-gradient(to bottom, rgba(26, 29, 26, 0.032) 0 1px, transparent 1px 56px),
+    radial-gradient(120% 90% at 50% 24%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 68%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
 }
 
 img { max-width: 100%; display: block; }
@@ -91,6 +126,9 @@ nav a {
   transition: color 0.2s ease;
 }
 nav a:hover { color: var(--ink); }
+nav[aria-label="Main"] a.accent { color: var(--green); }
+nav[aria-label="Main"] a.accent:hover { color: var(--green-deep); }
+.glass-header nav a[aria-current="page"] { color: var(--ink); }
 
 /* ============================================================
    SLIDE-OUT NAV (assets/nav.js)
@@ -99,15 +137,16 @@ nav a:hover { color: var(--ink); }
    ============================================================ */
 .nav-toggle { display: none; }
 
-.has-slideout nav[aria-label="Main"] {
+.nav-panel nav[aria-label="Main"] {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 0;
 }
 
+/* The hamburger only takes over once the inline links run out of room. */
 .has-slideout .nav-toggle {
-  display: grid;
+  display: none;
   place-items: center;
   width: 44px; height: 44px;
   padding: 0;
@@ -119,6 +158,11 @@ nav a:hover { color: var(--ink); }
 }
 .has-slideout .nav-toggle:hover { background: var(--sand); border-color: var(--green); }
 .nav-toggle:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+@media (max-width: 960px) {
+  .has-slideout .glass-header nav[aria-label="Main"] { display: none; }
+  .has-slideout .nav-toggle { display: grid; }
+}
 
 .nav-bars { display: block; width: 18px; }
 .nav-bars i {
@@ -248,9 +292,31 @@ nav a:hover { color: var(--ink); }
    sits along the bottom over a scrim that fades out well below
    face height, so nobody's face is ever covered.
    ============================================================ */
-.hero { padding: 96px 24px 0; max-width: var(--wrap); margin: 0 auto; }
+.hero { padding: 152px 24px 0; max-width: var(--wrap); margin: 0 auto; position: relative; }
+
+/* Ghost wordmark — huge, near-transparent, sitting behind the
+   stage so only its top strip shows in the gap under the header. */
+.hero::before {
+  content: "ELEVEN";
+  position: absolute;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(110px, 21vw, 250px);
+  line-height: 0.9;
+  letter-spacing: 0.05em;
+  color: rgba(94, 130, 102, 0.08);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
 .stage {
   position: relative;
+  z-index: 1;
   min-height: 74vh;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -431,7 +497,7 @@ nav a:hover { color: var(--ink); }
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: 72px 24px 18px;
+  padding: 104px 24px 18px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 0;
   /* Clear the fixed header when jumping to #events / #gist */
@@ -461,7 +527,7 @@ nav a:hover { color: var(--ink); }
   display: block;
   grid-template-columns: none;
   gap: 0;
-  padding: 0 24px 40px;
+  padding: 0 24px 56px;
 }
 .event {
   display: grid;
@@ -573,7 +639,7 @@ nav a:hover { color: var(--ink); }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
-  padding: 32px 24px 40px;
+  padding: 40px 24px 56px;
 }
 .card { padding: 0; border: none; border-radius: 0; background: none; }
 .card .thumb {
@@ -585,6 +651,7 @@ nav a:hover { color: var(--ink); }
   margin-bottom: 14px;
 }
 .ph { width: 100%; height: 100%; }
+.card .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .anim-bg { background: var(--pale); }
 .green-glow, .gold-glow, .emerald-glow { box-shadow: none; }
 .green-glow { background: var(--pale); }
@@ -608,7 +675,7 @@ nav a:hover { color: var(--ink); }
    NEWSLETTER / MEMBERS
    ============================================================ */
 .letter {
-  margin: 72px auto;
+  margin: 104px auto;
   padding: 56px 32px;
   text-align: center;
   border-radius: var(--radius);
@@ -641,15 +708,38 @@ nav a:hover { color: var(--ink); }
    FOOTER
    ============================================================ */
 footer {
-  display: flex;
-  justify-content: space-between;
-  padding: 32px 24px;
+  display: block;
+  padding: 34px 24px 30px;
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 14px;
-  margin-top: 40px;
+  margin-top: 72px;
 }
 footer .fm { font-family: var(--serif); font-style: italic; color: var(--green); }
+
+/* Footer sitemap — the "where is everything" answer on every page. */
+.foot-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.foot-nav a {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.foot-nav a:hover { color: var(--green); }
+.foot-base {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
 
 /* ============================================================
    MUSIC CHART (music.html)
@@ -686,6 +776,7 @@ ol.chart { list-style: none; padding: 0; margin: 0; }
   width: 58px; height: 58px; border-radius: 10px; overflow: hidden;
   background: var(--pale); border: 1px solid var(--line); flex-shrink: 0;
 }
+.chart-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .chart-info { flex: 1; min-width: 0; }
 .chart-title { font-weight: 600; font-size: 17px; display: block; margin-bottom: 2px; }
 .chart-artist { color: var(--muted); font-size: 14px; }
@@ -824,6 +915,9 @@ ol.chart { list-style: none; padding: 0; margin: 0; }
   margin: 22px 0 8px; box-shadow: none;
 }
 .lede-media .ph, .lede-media img { width: 100%; height: 100%; object-fit: cover; }
+/* Flyers and album art keep their full frame — letterboxed, never cropped. */
+.lede-media.is-flyer { aspect-ratio: auto; background: var(--ink); }
+.lede-media.is-flyer img { object-fit: contain; max-height: 640px; }
 .caption { font-size: 13px; color: var(--muted); margin: 8px 2px 0; }
 .article-body { padding: 24px 0 10px; font-size: 18px; line-height: 1.75; }
 .article-body p { margin: 0 0 20px; color: var(--ink); }
@@ -1225,3 +1319,15 @@ ol.chart { list-style: none; padding: 0; margin: 0; }
 }
 .gallery-wrap .shot figcaption { display: flex; flex-direction: column; gap: 2px; }
 .gallery-wrap .place-filters { margin-bottom: 12px; }
+
+/* ============================================================
+   BRAND PLACEHOLDER
+   The monogram tile stands in wherever real artwork is missing.
+   Declared last so it outranks the object-fit:cover media rules.
+   ============================================================ */
+img.ph-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #F7F3EC;
+}

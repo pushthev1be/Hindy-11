@@ -84,11 +84,21 @@
 
     function score(t){ return t.upvotes - t.downvotes; }
 
+    /* Covers for house artists whose tracks were seeded into the
+       database without an art_url. Keyed on the lowercased artist. */
+    const LOCAL_ART = {
+      "balanze diet": "assets/balanze-celebrity.jpg",
+      "omoboi": "assets/omoboi-new.jpg",
+      "oluwa bj": "assets/oluwa-bj-evil-bost.jpg",
+      "dj kelvo": "assets/kelvo.jpg"
+    };
+
     function thumbFor(t, li){
       const holder = li.querySelector(".chart-thumb");
-      if(t.art_url){
+      const src = t.art_url || LOCAL_ART[String(t.artist || "").trim().toLowerCase()];
+      if(src){
         const img = document.createElement("img");
-        img.src = t.art_url;
+        img.src = src;
         img.alt = t.title + " cover art";
         img.loading = "lazy";
         img.addEventListener("error", () => { img.remove(); mountAnim(holder); });

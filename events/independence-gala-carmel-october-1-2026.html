@@ -50,6 +50,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
@@ -57,11 +58,12 @@
 <header class="glass-header">
   <a class="wordmark" href="../index.html">Hindy<span class="dash" aria-hidden="true"></span><em>eleven</em></a>
   <nav aria-label="Main">
-    <a href="../index.html#events">The Scene</a>
-    <a href="../music.html">Sounds</a>
-    <a href="../index.html#gist">The Gist</a>
+    <a href="../index.html#events">Events</a>
+    <a href="../music.html">Music</a>
     <a href="../gallery.html">Gallery</a>
     <a href="../places.html">Places</a>
+    <a href="../index.html#gist">News</a>
+    <a href="../submit-event.html" class="accent">List an event</a>
     <a href="../index.html#join" class="btn-gold">Members</a>
   </nav>
 </header>
@@ -76,11 +78,7 @@
   </div>
 
   <figure class="lede-media">
-    <svg class="ph" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Independence Gala artwork placeholder">
-      <rect width="1200" height="675" fill="#F7F6F2"/>
-      <rect x="0" y="0" width="400" height="675" fill="#5E8266" opacity=".3"/>
-      <rect x="800" y="0" width="400" height="675" fill="#5E8266" opacity=".3"/>
-    </svg>
+    <img class="ph-logo" src="../assets/logo-tile.png" alt="Hindy-eleven monogram — gala artwork coming soon">
     <figcaption class="caption">Replace with the official gala artwork when you have it.</figcaption>
   </figure>
 
@@ -94,21 +92,30 @@
   <div data-rsvp="independence-day-gala-2026-10-01" data-rsvp-mode="full"></div>
 
   <div class="draft-note">
-    <b>Confirm the details.</b> The start time and 21+ policy are placeholders — verify them, along with
-    the ticket link, before publishing. The venue address is The Palladium's public address.
+    <b>Confirm the details.</b> The start time and 21+ policy are placeholders — verify them
+    before publishing. The venue address is The Palladium's public address.
   </div>
 
   <article class="article-body">
     <p>Add the run of show here — the reception, the sit-down, who's performing, and how the night closes out.</p>
-    <a class="article-cta" href="#">Get tickets →</a>
   </article>
 
   <section class="photos" id="photos" data-event-date="2026-10-01T19:00:00-04:00" data-photos="independence-day-gala-2026-10-01"></section>
 </main>
 
 <footer>
-  <span>© 2026 Hindy-eleven</span>
-  <span class="fm">Naija culture, Indiana address.</span>
+  <nav class="foot-nav" aria-label="Footer">
+    <a href="../index.html#events">Events</a>
+    <a href="../music.html">Music chart</a>
+    <a href="../gallery.html">Gallery</a>
+    <a href="../places.html">Places</a>
+    <a href="../submit-event.html">List an event</a>
+    <a href="../index.html#join">Membership</a>
+  </nav>
+  <div class="foot-base">
+    <span>© 2026 Hindy-eleven</span>
+    <span class="fm">Naija culture, Indiana address.</span>
+  </div>
 </footer>
 
 <script src="../assets/rsvp.js"></script>

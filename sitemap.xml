@@ -37,6 +37,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://hindyeleven.com/features/oluwa-bj-evil-bost.html</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://hindyeleven.com/events/afrowave-experience-indianapolis-july-25-2026.html</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>weekly</changefreq>
@@ -51,6 +57,18 @@
   <url>
     <loc>https://hindyeleven.com/events/independence-gala-carmel-october-1-2026.html</loc>
     <lastmod>2026-07-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://hindyeleven.com/events/feel-the-tempo-halloween-indianapolis-october-31-2026.html</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://hindyeleven.com/events/oafest-2026-indianapolis-august-15.html</loc>
+    <lastmod>2026-07-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

@@ -48,6 +48,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
@@ -55,11 +56,12 @@
 <header class="glass-header">
   <a class="wordmark" href="../index.html">Hindy<span class="dash" aria-hidden="true"></span><em>eleven</em></a>
   <nav aria-label="Main">
-    <a href="../index.html#events">The Scene</a>
-    <a href="../music.html">Sounds</a>
-    <a href="../index.html#gist">The Gist</a>
+    <a href="../index.html#events">Events</a>
+    <a href="../music.html">Music</a>
     <a href="../gallery.html">Gallery</a>
     <a href="../places.html">Places</a>
+    <a href="../index.html#gist">News</a>
+    <a href="../submit-event.html" class="accent">List an event</a>
     <a href="../index.html#join" class="btn-gold">Members</a>
   </nav>
 </header>
@@ -74,15 +76,8 @@
   </div>
 
   <figure class="lede-media">
-    <svg class="ph" viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Event art placeholder">
-      <defs><linearGradient id="lj" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#8FA6A0"/><stop offset="1" stop-color="#E8DFD0"/>
-      </linearGradient></defs>
-      <rect width="1200" height="675" fill="url(#lj)"/>
-      <circle cx="960" cy="170" r="190" fill="#F7F6F2" opacity=".35"/>
-      <circle cx="360" cy="500" r="240" fill="#DDE4DA" opacity=".5"/>
-    </svg>
-    <figcaption class="caption">Replace with the official event flyer when you have it.</figcaption>
+    <img src="../assets/crowd-vibes.jpg" alt="A packed day party — the crowd mid-vibe" style="object-position:center 30%">
+    <figcaption class="caption">Day-party energy — this is what the afternoon looks like.</figcaption>
   </figure>
 
   <dl class="fact-box">
@@ -95,20 +90,29 @@
   <div data-rsvp="lagos-to-jozi-2026-09-05" data-rsvp-mode="full"></div>
 
   <div class="draft-note">
-    <b>Confirm the details.</b> Verify the time, address and ticket link, then add the official ticket URL below.
+    <b>Confirm the details.</b> Verify the time and address before publishing.
   </div>
 
   <article class="article-body">
     <p>Add a short preview of the day party — the theme, the DJs, and what makes it worth the Saturday.</p>
-    <a class="article-cta" href="#">Get tickets →</a>
   </article>
 
   <section class="photos" id="photos" data-event-date="2026-09-05T15:00:00-04:00" data-photos="lagos-to-jozi-2026-09-05"></section>
 </main>
 
 <footer>
-  <span>© 2026 Hindy-eleven</span>
-  <span class="fm">Naija culture, Indiana address.</span>
+  <nav class="foot-nav" aria-label="Footer">
+    <a href="../index.html#events">Events</a>
+    <a href="../music.html">Music chart</a>
+    <a href="../gallery.html">Gallery</a>
+    <a href="../places.html">Places</a>
+    <a href="../submit-event.html">List an event</a>
+    <a href="../index.html#join">Membership</a>
+  </nav>
+  <div class="foot-base">
+    <span>© 2026 Hindy-eleven</span>
+    <span class="fm">Naija culture, Indiana address.</span>
+  </div>
 </footer>
 
 <script src="../assets/rsvp.js"></script>
