@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hindyeleven.com/sitemap.xml
+Sitemap: https://hindy.online/sitemap.xml

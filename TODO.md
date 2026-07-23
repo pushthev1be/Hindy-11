@@ -2,10 +2,19 @@
 
 ## Blockers — must be done before going live
 
-- [ ] **Hosting + domain.** Pick a static host (Netlify / Vercel / GitHub Pages — all free) and
-      deploy. Every canonical URL, og tag, robots.txt and sitemap entry assumes
-      `https://hindyeleven.com` — confirm that domain is owned and pointed at the host.
-      If launching on a different domain, those URLs must be updated across all pages first.
+- [ ] **Hosting + domain.** Domain is `hindy.online` (Namecheap). All site URLs updated to it
+      Jul 22, and a CNAME file added for GitHub Pages. Remaining manual steps:
+      1. Push the repo (github.com/pushthev1be/Hindy-11)
+      2. GitHub → repo Settings → Pages → deploy from branch `main`, folder `/ (root)`
+      3. Namecheap Advanced DNS: **remove** the parking CNAME (www → parkingpage.namecheap.com)
+         and the URL Redirect record, then **add**:
+         - A record · @ · 185.199.108.153
+         - A record · @ · 185.199.109.153
+         - A record · @ · 185.199.110.153
+         - A record · @ · 185.199.111.153
+         - CNAME · www · pushthev1be.github.io.
+      4. Back in GitHub Pages settings: custom domain `hindy.online`, wait for DNS check,
+         tick "Enforce HTTPS" (may take ~30 min for the certificate)
 - [ ] **Places page is 100% placeholder.** Five fake businesses with dead "Website →" links and
       a visible "Placeholder entries" warning. Either fill in real businesses (names, addresses,
       phones) or remove Places from the nav until it's ready. This is the future ad product —
@@ -19,25 +28,21 @@
   - Independence Gala: same, plus editor note; start time and 21+ policy are unverified
   - Lagos address conflict: homepage row says "address to be confirmed", event page says
     3145 E 10th St — pick one.
-- [ ] **Homepage SEO head is bare.** index.html has no canonical, og:image, or twitter tags
-      (the subpages all do). music.html is missing them too. Add before launch — these control
-      how links look when shared on WhatsApp.
+- [x] **Homepage SEO head is bare.** ~~index.html has no canonical, og:image, or twitter tags~~
+      Done Jul 22 — canonical/og/twitter/robots added to index.html and music.html.
 - [ ] **Change the admin password.** The current one was shared in a chat log. Supabase
       dashboard → Authentication → Users, or ask Claude to wire a change-password flow.
-- [ ] **Commit to git.** Nothing has been committed since the initial commit — commit the
-      working tree before deploying so there's a restore point.
+- [x] **Commit to git.** Done Jul 22 (commit d766ba0, repo-local git identity configured).
+      Commit again after the remaining content fixes, right before deploying.
 
 ## Strongly recommended — quick wins
 
-- [ ] **Favicon.** Browser tabs show a generic globe. The brand sheet (assets/logo-sheet.png)
-      has favicon designs ready to crop; needs `<link rel="icon">` on all pages.
-- [ ] **Dead links on the homepage:** wordmark links to "#" (should be index.html), and
-      The Gist's "Read All" goes nowhere.
+- [x] **Favicon.** Done Jul 22 — H1 monogram cropped from the brand sheet, linked on all 16 pages.
+- [x] **Dead links on the homepage:** Done Jul 22 — wordmark now links home; "Read All" removed.
 - [ ] **News cards without articles.** "New NSA Indy Leadership" and "The Northside Jollof
       Secret" have no pages behind them — write them, or remove the cards for launch.
-- [ ] **Trim heavy/unused assets.** hero.png (953 KB) and balanze-diet.jpg are no longer used
-      anywhere; logo-sheet.png (986 KB) is a source file, not a page asset. Remove or keep out
-      of the deploy. oafest-2026.jpg (579 KB) could be compressed ~40% with no visible loss.
+- [x] **Trim heavy/unused assets.** Done Jul 22 — hero.png, balanze-diet.jpg, social-media.json
+      deleted; oafest-2026.jpg recompressed 579→463 KB. (logo-sheet.png kept as brand source.)
 - [ ] **Real-phone pass.** Test on an actual phone: hamburger menu, RSVP taps, flyer slides,
       photo upload from camera roll.
 - [ ] **Supabase hygiene:** run the security/performance advisors; confirm email confirmation
