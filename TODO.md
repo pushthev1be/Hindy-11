@@ -15,10 +15,12 @@
          - CNAME · www · pushthev1be.github.io.
       4. Back in GitHub Pages settings: custom domain `hindy.online`, wait for DNS check,
          tick "Enforce HTTPS" (may take ~30 min for the certificate)
-- [ ] **Places page is 100% placeholder.** Five fake businesses with dead "Website →" links and
-      a visible "Placeholder entries" warning. Either fill in real businesses (names, addresses,
-      phones) or remove Places from the nav until it's ready. This is the future ad product —
-      don't launch it looking fake.
+- [x] **Places page is 100% placeholder.** Done Jul 22 — launched with 8 web-verified listings:
+      Kalakutah Republic Grill, Miami's Garden (Food) · K-Arise, Victory Super Store (Market) ·
+      Olas Villa, Paradox Lounge (Events) · RCCG Rod of God, RCCG Covenant House (Faith),
+      with addresses and tap-to-call numbers. Growing it to a full directory (salons, tailors,
+      more restaurants/markets/churches from the research list) is a post-launch task — each
+      entry needs verification before publishing.
 - [ ] **Newsletter "Apply" button does nothing.** The Members / "Friday Gist" signup on the
       homepage has no handler — email addresses typed there vanish. Wire it to Supabase,
       point it at a Google Form / WhatsApp group link, or remove the section.
