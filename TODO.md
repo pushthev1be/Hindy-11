@@ -2,19 +2,20 @@
 
 ## Blockers — must be done before going live
 
-- [ ] **Hosting + domain.** Domain is `hindy.online` (Namecheap). All site URLs updated to it
-      Jul 22, and a CNAME file added for GitHub Pages. Remaining manual steps:
-      1. Push the repo (github.com/pushthev1be/Hindy-11)
-      2. GitHub → repo Settings → Pages → deploy from branch `main`, folder `/ (root)`
+- [ ] **Hosting + domain.** Domain is `hindy.online` (Namecheap), hosting on **Render**.
+      All site URLs updated Jul 22; repo is pushed. Remaining manual steps:
+      1. render.com → New → **Static Site** → connect GitHub repo `pushthev1be/Hindy-11`,
+         branch `main`, Build Command: *(leave empty)*, Publish Directory: `.`
+      2. After the first deploy, Render → your site → Settings → **Custom Domains** →
+         add `hindy.online` (and `www.hindy.online`)
       3. Namecheap Advanced DNS: **remove** the parking CNAME (www → parkingpage.namecheap.com)
          and the URL Redirect record, then **add**:
-         - A record · @ · 185.199.108.153
-         - A record · @ · 185.199.109.153
-         - A record · @ · 185.199.110.153
-         - A record · @ · 185.199.111.153
-         - CNAME · www · pushthev1be.github.io.
-      4. Back in GitHub Pages settings: custom domain `hindy.online`, wait for DNS check,
-         tick "Enforce HTTPS" (may take ~30 min for the certificate)
+         - A record · Host `@` · `216.24.57.1`
+         - CNAME · Host `www` · `<your-site>.onrender.com.` (Render shows the exact target
+           on the Custom Domains screen)
+      4. Wait for Render's domain verification — it issues the HTTPS certificate
+         automatically (usually minutes after DNS propagates)
+      Note: Render auto-deploys on every `git push` to main from then on.
 - [x] **Places page is 100% placeholder.** Done Jul 22 — launched with 8 web-verified listings:
       Kalakutah Republic Grill, Miami's Garden (Food) · K-Arise, Victory Super Store (Market) ·
       Olas Villa, Paradox Lounge (Events) · RCCG Rod of God, RCCG Covenant House (Faith),
