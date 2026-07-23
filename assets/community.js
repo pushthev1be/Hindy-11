@@ -355,6 +355,55 @@
     });
   }
 
+  /* ---------- contact form ---------- */
+  function contactForm(form){
+    const msg = form.querySelector(".le-msg");
+    const btn = form.querySelector("button[type=submit]");
+    const f = form.elements; // an input named "name" shadows form.name
+
+    // Deep link: contact.html?topic=business|event|classes preselects.
+    const want = new URLSearchParams(location.search).get("topic");
+    const topics = {
+      business: "List my business",
+      event: "Post an event",
+      classes: "AI graphic design classes"
+    };
+    if(want && topics[want] && f.topic) f.topic.value = topics[want];
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = f.name.value.trim();
+      const email = f.email.value.trim();
+      const message = f.message.value.trim();
+
+      if(name.length < 2){ msg.textContent = "Leave your name."; return; }
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+        msg.textContent = "Leave a valid email address."; return;
+      }
+      if(message.length < 5){ msg.textContent = "Say a little more about what you need."; return; }
+
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = "Sending…";
+      msg.textContent = "";
+
+      rpc("submit_contact", {
+        p_name: name,
+        p_email: email,
+        p_phone: f.phone.value.trim(),
+        p_topic: f.topic.value,
+        p_message: message
+      }).then(() => {
+        form.innerHTML =
+          '<p class="le-done">Got it — we\'ll reach out at ' + esc(email) + ' soon.</p>';
+      }).catch((err) => {
+        btn.disabled = false;
+        btn.textContent = original;
+        msg.textContent = err.message || "Couldn't send that. Try again.";
+      });
+    });
+  }
+
   /* ---------- newsletter signup ---------- */
   function newsletter(form){
     const msg = form.parentElement.querySelector(".letter-msg");
@@ -393,6 +442,9 @@
 
     const nl = document.querySelector("[data-newsletter]:not([data-nl-ready])");
     if(nl){ nl.dataset.nlReady = "1"; newsletter(nl); }
+
+    const ct = document.querySelector("[data-contact]:not([data-ct-ready])");
+    if(ct){ ct.dataset.ctReady = "1"; contactForm(ct); }
   }
 
   document.addEventListener("DOMContentLoaded", scan);

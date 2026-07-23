@@ -159,7 +159,7 @@ nav[aria-label="Main"] a.accent:hover { color: var(--green-deep); }
 .has-slideout .nav-toggle:hover { background: var(--sand); border-color: var(--green); }
 .nav-toggle:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
-@media (max-width: 960px) {
+@media (max-width: 1080px) {
   .has-slideout .glass-header nav[aria-label="Main"] { display: none; }
   .has-slideout .nav-toggle { display: grid; }
 }
@@ -1106,15 +1106,16 @@ ol.chart { list-style: none; padding: 0; margin: 0; }
   font-size: 13px; font-weight: 700; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--muted);
 }
-.le-field input, .le-field textarea {
+.le-field input, .le-field textarea, .le-field select {
   padding: 13px 18px; font-size: 16px; font-family: var(--sans);
   border: 1px solid var(--line); border-radius: var(--radius);
   background: var(--surface); color: var(--ink); width: 100%;
 }
 .le-field textarea { resize: vertical; line-height: 1.55; }
-.le-field input:focus, .le-field textarea:focus {
+.le-field input:focus, .le-field textarea:focus, .le-field select:focus {
   outline: none; border-color: var(--green);
 }
+.le-note a { color: var(--green); font-weight: 600; }
 .le-note {
   margin: 4px 0 0; font-size: 14px; color: var(--muted);
   padding-left: 12px; border-left: 2px solid var(--line);

@@ -21,6 +21,7 @@
     <a href="gallery.html">Gallery</a>
     <a href="places.html">Places</a>
     <a href="index.html#gist">News</a>
+    <a href="contact.html">Contact</a>
     <a href="submit-event.html" class="accent">List an event</a>
     <a href="index.html#join" class="btn-gold">Members</a>
   </nav>
@@ -70,6 +71,9 @@
     <h2 class="admin-sec">Photos <span class="admin-n" id="ph-n"></span></h2>
     <div id="photos-queue" class="admin-grid"><p class="admin-empty">Loading…</p></div>
 
+    <h2 class="admin-sec">Messages <span class="admin-n" id="ct-n"></span></h2>
+    <div id="contacts-list" class="admin-queue"><p class="admin-empty">Loading…</p></div>
+
     <h2 class="admin-sec">Newsletter subscribers <span class="admin-n" id="sub-n"></span></h2>
     <div id="subs-list" class="admin-queue"><p class="admin-empty">Loading…</p></div>
   </section>
@@ -83,6 +87,7 @@
     <a href="gallery.html">Gallery</a>
     <a href="places.html">Places</a>
     <a href="submit-event.html">List an event</a>
+    <a href="contact.html">Contact</a>
     <a href="index.html#join">Membership</a>
   </nav>
   <div class="foot-base">
@@ -176,7 +181,51 @@
     loadEvents();
     loadTracks();
     loadPhotos();
+    loadContacts();
     loadSubs();
+  }
+
+  /* ---------- contact messages ---------- */
+  const ctList = document.getElementById("contacts-list");
+  const ctN = document.getElementById("ct-n");
+
+  function loadContacts(){
+    rpc("admin_list_contacts").then((rows) => {
+      const list = rows || [];
+      ctN.textContent = list.length ? "(" + list.length + ")" : "";
+      if(!list.length){ ctList.innerHTML = '<p class="admin-empty">No messages.</p>'; return; }
+      ctList.innerHTML = "";
+      list.forEach((c) => {
+        const d = new Date(c.created_at);
+        const card = document.createElement("article");
+        card.className = "admin-card";
+        card.innerHTML =
+          '<div class="admin-card-body">' +
+            '<h3>' + esc(c.topic) + '</h3>' +
+            '<p class="admin-when">' + esc(d.toLocaleString(undefined, {
+                month:"short", day:"numeric", hour:"numeric", minute:"2-digit" })) + '</p>' +
+            '<p>' + esc(c.message) + '</p>' +
+            '<dl class="admin-meta">' +
+              '<dt>From</dt><dd>' + esc(c.name) + '</dd>' +
+              '<dt>Email</dt><dd><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a></dd>' +
+              (c.phone ? '<dt>Phone</dt><dd><a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + '</a></dd>' : '') +
+            '</dl>' +
+          '</div>' +
+          '<div class="admin-actions">' +
+            '<button class="no" type="button">Done</button>' +
+          '</div>';
+        card.querySelector(".no").addEventListener("click", () => {
+          if(!confirm("Remove this message? Make sure you've replied first.")) return;
+          busy(card, true);
+          rpc("admin_delete_contact", { p_id: c.id })
+            .then(() => { card.remove(); loadContacts(); })
+            .catch((e) => { busy(card, false); alert(e.message); });
+        });
+        ctList.appendChild(card);
+      });
+    }).catch((e) => {
+      ctList.innerHTML = '<p class="admin-empty">' + esc(e.message) + '</p>';
+    });
   }
 
   /* ---------- newsletter subscribers ---------- */
