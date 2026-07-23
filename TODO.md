@@ -26,12 +26,11 @@
       locked Supabase table (validated, deduped); admin.html has a Subscribers section with a
       copy-all button (paste into BCC to send event updates). Post-launch: automate the sending
       (e.g. Resend + weekly digest) so updates go out without manual emailing.
-- [ ] **Placeholder copy on event pages.** Written-by-nobody text still live:
-  - AfroWave: "Add a short preview of the night…"
-  - Lagos to Jozi: same, plus the "Confirm the details" editor note
-  - Independence Gala: same, plus editor note; start time and 21+ policy are unverified
-  - Lagos address conflict: homepage row says "address to be confirmed", event page says
-    3145 E 10th St — pick one.
+- [x] **Placeholder copy on event pages.** Done Jul 22 — real blurbs written for AfroWave,
+      Lagos to Jozi and the Gala; editor draft-notes removed; homepage Lagos row now shows
+      3145 E 10th St (matching the event page's structured data).
+      Still worth a human double-check with the organizers: Lagos to Jozi's address, and the
+      Gala's start time / 21+ policy (they were seeded as best-guesses).
 - [x] **Homepage SEO head is bare.** ~~index.html has no canonical, og:image, or twitter tags~~
       Done Jul 22 — canonical/og/twitter/robots added to index.html and music.html.
 - [ ] **Change the admin password.** The current one was shared in a chat log. Supabase
