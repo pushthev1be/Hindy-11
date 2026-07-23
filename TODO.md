@@ -22,9 +22,10 @@
       with addresses and tap-to-call numbers. Growing it to a full directory (salons, tailors,
       more restaurants/markets/churches from the research list) is a post-launch task — each
       entry needs verification before publishing.
-- [ ] **Newsletter "Apply" button does nothing.** The Members / "Friday Gist" signup on the
-      homepage has no handler — email addresses typed there vanish. Wire it to Supabase,
-      point it at a Google Form / WhatsApp group link, or remove the section.
+- [x] **Newsletter "Apply" button does nothing.** Done Jul 22 — subscribe form now saves to a
+      locked Supabase table (validated, deduped); admin.html has a Subscribers section with a
+      copy-all button (paste into BCC to send event updates). Post-launch: automate the sending
+      (e.g. Resend + weekly digest) so updates go out without manual emailing.
 - [ ] **Placeholder copy on event pages.** Written-by-nobody text still live:
   - AfroWave: "Add a short preview of the night…"
   - Lagos to Jozi: same, plus the "Confirm the details" editor note

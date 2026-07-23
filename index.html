@@ -225,12 +225,13 @@
 
 <!-- NEWSLETTER -->
 <section class="letter glass-card" id="join">
-  <h2>The Friday Gist <em>— for members</em></h2>
-  <p>Curated exclusively for Indiana Nigerians. No noise, just culture.</p>
-  <div class="letter-row">
-    <input type="email" placeholder="you@example.com" aria-label="Email address">
-    <button type="button" class="btn-gold">Apply</button>
-  </div>
+  <h2>The Friday Gist <em>— event updates</em></h2>
+  <p>New events, parties and culture across Indiana — straight to your inbox. No noise, just the plans.</p>
+  <form class="letter-row" data-newsletter novalidate>
+    <input name="email" type="email" placeholder="you@example.com" aria-label="Email address" required>
+    <button type="submit" class="btn-gold">Subscribe</button>
+  </form>
+  <p class="letter-msg" role="status" aria-live="polite"></p>
 </section>
 
 <footer>

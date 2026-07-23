@@ -703,6 +703,10 @@ nav[aria-label="Main"] a.accent:hover { color: var(--green-deep); }
   font-size: 16px;
 }
 .letter-row input:focus { outline: none; border-color: var(--green); }
+.letter-msg {
+  margin: 14px auto 0; font-size: 15px;
+  color: var(--green-deep); min-height: 1em; max-width: 44ch;
+}
 
 /* ============================================================
    FOOTER

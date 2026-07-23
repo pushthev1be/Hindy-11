@@ -69,6 +69,9 @@
 
     <h2 class="admin-sec">Photos <span class="admin-n" id="ph-n"></span></h2>
     <div id="photos-queue" class="admin-grid"><p class="admin-empty">Loading…</p></div>
+
+    <h2 class="admin-sec">Newsletter subscribers <span class="admin-n" id="sub-n"></span></h2>
+    <div id="subs-list" class="admin-queue"><p class="admin-empty">Loading…</p></div>
   </section>
 
 </main>
@@ -173,6 +176,36 @@
     loadEvents();
     loadTracks();
     loadPhotos();
+    loadSubs();
+  }
+
+  /* ---------- newsletter subscribers ---------- */
+  const subsList = document.getElementById("subs-list");
+  const subN = document.getElementById("sub-n");
+
+  function loadSubs(){
+    rpc("admin_list_subscribers").then((rows) => {
+      const list = rows || [];
+      subN.textContent = list.length ? "(" + list.length + ")" : "";
+      if(!list.length){ subsList.innerHTML = '<p class="admin-empty">No sign-ups yet.</p>'; return; }
+      const emails = list.map((s) => s.email);
+      subsList.innerHTML =
+        '<article class="admin-card">' +
+          '<div class="admin-card-body"><p>' + emails.map(esc).join("<br>") + '</p></div>' +
+          '<div class="admin-actions">' +
+            '<button class="ok" type="button" id="copy-subs">Copy all</button>' +
+          '</div>' +
+        '</article>';
+      document.getElementById("copy-subs").addEventListener("click", () => {
+        navigator.clipboard.writeText(emails.join(", "))
+          .then(() => alert("Copied " + emails.length +
+            (emails.length === 1 ? " email" : " emails") +
+            " — paste into the BCC field of your update email."))
+          .catch(() => alert("Couldn't copy — select the list and copy manually."));
+      });
+    }).catch((e) => {
+      subsList.innerHTML = '<p class="admin-empty">' + esc(e.message) + '</p>';
+    });
   }
 
   /* ---------- events queue ---------- */

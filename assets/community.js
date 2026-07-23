@@ -355,6 +355,30 @@
     });
   }
 
+  /* ---------- newsletter signup ---------- */
+  function newsletter(form){
+    const msg = form.parentElement.querySelector(".letter-msg");
+    const btn = form.querySelector("button");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+        if(msg) msg.textContent = "Leave a valid email address."; return;
+      }
+      btn.disabled = true;
+      rpc("subscribe_newsletter", { p_email: email })
+        .then(() => {
+          form.hidden = true;
+          if(msg) msg.textContent = "You're on the list — new events land in your inbox.";
+        })
+        .catch((err) => {
+          btn.disabled = false;
+          if(msg) msg.textContent = err.message || "Couldn't subscribe. Try again.";
+        });
+    });
+  }
+
   /* event.html builds its widgets after an async lookup, which can land
      after DOMContentLoaded — so scanning has to be repeatable. */
   function scan(){
@@ -366,6 +390,9 @@
 
     const le = document.querySelector("[data-submit-event]:not([data-le-ready])");
     if(le){ le.dataset.leReady = "1"; submitEvent(le); }
+
+    const nl = document.querySelector("[data-newsletter]:not([data-nl-ready])");
+    if(nl){ nl.dataset.nlReady = "1"; newsletter(nl); }
   }
 
   document.addEventListener("DOMContentLoaded", scan);
